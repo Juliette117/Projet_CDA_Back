@@ -6,6 +6,7 @@ import { CreateUserDto } from 'src/models/dto/create-user.dto';
 
 @Injectable()
 export class UserService {
+  findByEmail: any;
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,

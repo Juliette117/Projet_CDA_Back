@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Delete } from '@nestjs/common';
 import { JeuVideoService } from '../services/jeu-video.service';
-import { CreateJeuVideoDto } from '../dto/create-jeu-video.dto';
+import { CreateJeuVideoDto } from 'src/models/dto/create-jeu-video.dto'; 
 
 @Controller('jeux-video')
 export class JeuVideoController {
