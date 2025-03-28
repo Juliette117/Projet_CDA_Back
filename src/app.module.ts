@@ -2,10 +2,15 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createConnection } from 'neo4j-driver';
-import { UsersModule } from './users/users.module';
-import { FilmModule } from './film/film.module';
-import { SerieModule } from './serie/serie.module';
-import { JeuVideoModule } from './jeu-video/jeu-video.module';
+import { Neo4jModule } from './neo4j/neo4j.module';
+import { UsersModule } from './users.module';
+import { FilmModule } from './film.module';
+import { SerieModule } from './serie.module';
+import { JeuVideoModule } from './jeu-video.module';
+import { User } from './entities/user.entity';
+import { Film } from './entities/film.entity';
+import { Serie } from './entities/serie.entity';
+import { JeuVideo } from './entities/jeu-video.entity';
 
 @Module({
   imports: [
