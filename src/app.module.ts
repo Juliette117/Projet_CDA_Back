@@ -7,10 +7,10 @@ import { UsersModule } from './users.module';
 import { FilmModule } from './film.module';
 import { SerieModule } from './serie.module';
 import { JeuVideoModule } from './jeu-video.module';
-import { User } from './entities/user.entity';
-import { Film } from './entities/film.entity';
-import { Serie } from './entities/serie.entity';
-import { JeuVideo } from './entities/jeu-video.entity';
+import { User } from './models/entities/user.entity';
+import { Film } from './models/entities/film.entity';
+import { Serie } from './models/entities/serie.entity';
+import { JeuVideo } from './models/entities/jeu-video.entity';
 
 @Module({
   imports: [
