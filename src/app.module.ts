@@ -2,6 +2,10 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { createConnection } from 'neo4j-driver';
+import { UsersModule } from './users/users.module';
+import { FilmModule } from './film/film.module';
+import { SerieModule } from './serie/serie.module';
+import { JeuVideoModule } from './jeu-video/jeu-video.module';
 
 @Module({
   imports: [
@@ -16,6 +20,10 @@ import { createConnection } from 'neo4j-driver';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    UsersModule,
+    FilmModule,
+    SerieModule,
+    JeuVideoModule,
   ],
   providers: [
     {
