@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable } from 'typeorm';
-import { Music } from './music.entity';
+import { Music } from './music/music.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/user/user.entity';
 
 @Entity()
 export class Playlist {
@@ -13,7 +14,11 @@ export class Playlist {
   name: string;
 
   @ApiProperty()
-  @ManyToMany(() => Music)
+  @ManyToMany(() => User, (user) => user.favoritePlaylists)
+  favoritedBy: User[];
+
+  @ApiProperty()
+  @ManyToMany(() => Music, (music) => music.playlists)
   @JoinTable()
   musics: Music[];
 }

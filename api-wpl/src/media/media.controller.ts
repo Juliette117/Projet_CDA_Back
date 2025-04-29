@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { MediaService } from './media.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { CreateSerieDto } from './dto/create-serie.dto';
 import { CreateVideoGameDto } from './dto/create-videoGame.dto';
+import { AttachPlaylistDto } from './dto/attach-playlist.dto';
+import { AttachSeasonPlaylistDto } from './dto/attach-season-playlist.dto';
 
 @ApiTags('medias')
 @Controller('medias')
@@ -39,4 +41,20 @@ export class MediaController {
   findAllVideoGames() {
     return this.mediaService.findAllVideoGames();
   }
+
+  @Post('movie/:id/playlist')
+  attachPlaylistToMovie(@Param('id') id: number, @Body() dto: AttachPlaylistDto) {
+
+
+}
+
+@Post('videogame/:id/playlist')
+attachPlaylistToVideoGame(@Param('id') id: number, @Body() dto: AttachPlaylistDto) {
+
+}
+
+@Post('serie/:id/season')
+attachPlaylistToSerieSeason(@Param('id') id: number, @Body() dto: AttachSeasonPlaylistDto) {
+
+}
 }

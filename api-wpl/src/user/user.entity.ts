@@ -1,8 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
-import { Role } from './role.entity';
-import { Playlist } from 'src/media/playlist.entity';
-import { Music } from 'src/media/music.entity';
+import { Role } from './role/role.entity';
+import { Playlist } from 'src/playlist/playlist.entity';
+import { Music } from 'src/playlist/music/music.entity';
 
 @Entity()
 export class User {
@@ -22,14 +22,16 @@ export class User {
   @Column()
   username: string;
 
-  @ManyToMany(() => Role)
+  @OneToMany(() => Role,(role) => role.user)
   @JoinTable()
   roles: Role[];
 
-  @ManyToMany(() => Playlist)
+  @ApiProperty()
+  @ManyToMany(() => Playlist, (playlist) => playlist.favoritedBy)
   @JoinTable()
   favoritePlaylists: Playlist[];
 
+  @ApiProperty()
   @ManyToMany(() => Music)
   @JoinTable()
   favoriteMusics: Music[];

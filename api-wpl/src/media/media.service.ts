@@ -5,6 +5,8 @@ import { VideoGame } from './videoGame.entity';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { CreateSerieDto } from './dto/create-serie.dto';
 import { CreateVideoGameDto } from './dto/create-videoGame.dto';
+import { v4 as uuidv4 } from 'uuid';
+import { Playlist } from 'src/playlist/playlist.entity';
 
 
 /**
@@ -19,7 +21,8 @@ export class MediaService {
   createMovie(createMovieDto: CreateMovieDto): Movie {
     const movie: Movie = {
       id: uuidv4(), // génère un id unique
-      ...createMovieDto, // copie tous les autres champs du DTO
+      ...createMovieDto,
+      playlist: new Playlist
     };
     // enregistre movie dans la base
     return movie;
@@ -27,17 +30,19 @@ export class MediaService {
 
   createSerie(createSerieDto: CreateSerieDto): Serie {
     const serie: Serie = {
-        id: uuidv4(),
-        ...createSerieDto,
+      id: uuidv4(),
+      ...createSerieDto,
+      seasonPlaylist: new Map()
     };
     return serie;
   }
 
   createVideoGame(createVideoGameDto: CreateVideoGameDto): VideoGame {
     const videoGame: VideoGame = {
-        id: uuidv4(),
-        ...createVideoGameDto,
-        plateform: []
+      id: uuidv4(),
+      ...createVideoGameDto,
+      plateform: [],
+      playlist: new Playlist
     };
     return videoGame;
   }
@@ -54,7 +59,5 @@ export class MediaService {
     return this.videoGames;
   }
 }
-function uuidv4(): string {
-    throw new Error('Function not implemented.');
-}
+
 
