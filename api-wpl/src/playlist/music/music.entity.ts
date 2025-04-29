@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
+import { Playlist } from 'src/playlist/playlist.entity';
 
 @Entity()
 export class Music {
@@ -18,4 +19,8 @@ export class Music {
   @ApiProperty()
   @Column()
   duration: number;
+
+  @ApiProperty()
+  @ManyToMany(() => Playlist, (playlist) => playlist.musics)
+  playlists: Playlist[];
 }
