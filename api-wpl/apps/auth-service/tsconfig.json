@@ -12,7 +12,7 @@
     "baseUrl": "./",
     "paths": {
       "@wpl/shared/*": ["libs/shared-lib/src/*"],
-      "@user-service/*": ["apps/user-service/src/*"],
+      "@user-service/*": ["../../user-service/src/*"],
     },
     "incremental": true,
     "skipLibCheck": true,
