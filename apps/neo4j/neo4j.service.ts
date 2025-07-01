@@ -5,13 +5,13 @@ import neo4j, { Driver} from 'neo4j-driver';
 export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   constructor() {}
 
-  private driver: Driver;
+  private driver!: Driver;
 
   onModuleInit() {
     this.driver = neo4j.driver(
       process.env.NEO4J_URI || 'bolt://neo4j:7687',
       neo4j.auth.basic(
-        process.env.NEO4J_USER || 'neo4j',
+        process.env.NEO4J_USERNAME || 'neo4j',
         process.env.NEO4J_PASSWORD || 'wpl_pass',
       ),
     );
@@ -26,14 +26,15 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  async write(query: string, params: any = {}) {
-    const session = this.driver.session();
-    try {
-      return await session.run(query, params);
-    } finally {
-      await session.close();
-    }
+ async write(cypher: string, params: any = {}) {
+  const session = this.driver.session();
+  try {
+    return await session.writeTransaction(tx => tx.run(cypher, params));
+  } finally {
+    await session.close();
   }
+}
+
 
   async onModuleDestroy() {
     await this.driver.close();

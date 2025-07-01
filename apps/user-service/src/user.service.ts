@@ -30,6 +30,7 @@ export class UserService {
       this.logger.error(`Erreur lors de l’inscription : L'adresse email ${email} est déjà utilisé`);
       throw new ConflictException('Cet email est déjà utilisé.');
     }
+    
 
     // 🔐 Hash du mot de passe
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);

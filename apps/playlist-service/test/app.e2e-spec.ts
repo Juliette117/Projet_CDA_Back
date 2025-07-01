@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { PlaylistServiceModule } from './../src/playlist-service.module';
+import { PlaylistServiceModule } from '../src/playlist.module';
 
 describe('PlaylistServiceController (e2e)', () => {
   let app: INestApplication;

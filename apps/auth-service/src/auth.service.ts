@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -24,33 +25,45 @@ export class AuthService {
   // ✅ Création
   async register(dto: CreateUserDto) {
     try {
-      // ✅ Hashage du mot de passe
-
-
-
-      const newUser = { ...dto };
-
       const response = await firstValueFrom(
-        this.httpService.post('/users', newUser).pipe(
+        this.httpService.post('/users', dto).pipe(
           catchError((error: AxiosError) => {
-            if (error.response?.status === 409) {
-              throw new ConflictException('Cet email est déjà utilisé.');
+            const status = error.response?.status;
+            const message = (error.response?.data as any)?.message;
+
+            console.error('🔴 Erreur Axios interceptée :', {
+              status,
+              message,
+              data: error.response?.data,
+            });
+
+            if (status === 409) {
+              throw new ConflictException(
+                message || 'Conflit : utilisateur existant',
+              );
             }
-            throw error;
+
+            throw new InternalServerErrorException(
+              'Erreur lors de la communication avec user-service',
+            );
           }),
         ),
       );
 
       return response.data;
-    } catch (error) {
-      if (error.response?.status === 409) {
-        throw new ConflictException(error.response.data?.message || 'Conflit');
+    } catch (error: any) {
+      console.error('🔴 Erreur finale dans register', {
+        name: error.name,
+        message: error.message,
+        status: error?.status,
+        stack: error.stack,
+      });
+
+      if (error instanceof ConflictException) {
+        throw error;
       }
 
-      this.logger.error('Erreur lors de l’enregistrement', error);
-      throw new InternalServerErrorException(
-        'Erreur serveur lors de l’enregistrement',
-      );
+      throw new InternalServerErrorException('Erreur interne dans AuthService');
     }
   }
 

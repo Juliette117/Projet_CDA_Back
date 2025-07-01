@@ -37,7 +37,7 @@ import { JwtStrategy } from './jwt.strategy';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        baseURL: config.get<string>('USER_URL') || 'http://localhost:3002',
+        baseURL: config.get<string>('USER_URL') || 'http://user-service:3002',
         timeout: 5000,
       }),
     }),
