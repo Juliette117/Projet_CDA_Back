@@ -4,7 +4,8 @@ import { UserService } from './user.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from 'apps/auth-service/src/jwt.strategy';
+import { JwtStrategy } from '@app/shared/strategies/jwt.strategy';
+
 
 @Module({
   imports: [

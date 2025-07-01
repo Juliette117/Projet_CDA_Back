@@ -1,9 +1,13 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "declaration": false,
-    "outDir": "../../dist/apps/auth-service"
+    "outDir": "../../dist/apps/auth-service",
+    "rootDir": "../../",                      
+    "types": ["node", "jest"]
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
+  "include": [
+    "src/**/*",
+    "../../libs/shared/src/**/*"             
+  ],
+  "exclude": ["node_modules", "dist"]
 }

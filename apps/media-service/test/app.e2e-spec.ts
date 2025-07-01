@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { MediaServiceModule } from './../src/media-service.module';
+import { MediaServiceModule } from '../src/media.module';
 
 describe('MediaServiceController (e2e)', () => {
   let app: INestApplication;

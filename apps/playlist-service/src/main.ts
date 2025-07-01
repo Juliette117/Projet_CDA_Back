@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { PlaylistServiceModule } from './playlist-service.module';
+import { PlaylistServiceModule } from './playlist.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(PlaylistServiceModule);
-  await app.listen(process.env.port ?? 3000);
+  await app.listen(3004, '0.0.0.0');
 }
 bootstrap();
