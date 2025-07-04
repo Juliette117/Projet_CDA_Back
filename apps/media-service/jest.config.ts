@@ -11,7 +11,6 @@ const config: Config = {
   coverageDirectory: '../../coverage/apps/media-service',
   moduleNameMapper: {
     '^@app/(.*)$': '<rootDir>/../../libs/shared/src/$1',
-    '^@wpl/(.*)$': '<rootDir>/../../libs/shared/src/$1',
   },
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',

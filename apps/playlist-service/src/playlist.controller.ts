@@ -9,6 +9,7 @@ import {
   Query,
   ParseUUIDPipe,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { PlaylistService } from './playlist.service';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
@@ -61,10 +62,10 @@ export class PlaylistController {
   }
 
   /**
-   * PUT /playlists/:id
+   * PATCH /playlists/:id
    * Met à jour une playlist
    */
-  @Put(':id')
+  @Patch(':id')
   async update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateDto: UpdatePlaylistDto,

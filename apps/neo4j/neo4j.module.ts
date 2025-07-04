@@ -1,4 +1,3 @@
-// neo4j.module.ts
 import { Module, DynamicModule } from '@nestjs/common';
 import { Neo4jService } from './neo4j.service';
 

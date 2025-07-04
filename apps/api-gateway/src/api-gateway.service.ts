@@ -67,10 +67,10 @@ export class ApiGatewayService {
     return data;
   }
 
-  // Appelle media-service pour créer un média (en passant le token)
-  async createMedia(authHeader: string, payload: any) {
+  // Appelle media-service pour créer un film (en passant le token)
+  async createMovie(authHeader: string, payload: any) {
     const res$ = this.httpService.post(
-      'http://media-service:3003/media',
+      'http://media-service:3003/media/movies',
       payload,
       {
         headers: { Authorization: authHeader },
@@ -80,9 +80,35 @@ export class ApiGatewayService {
     return data;
   }
 
-  // PUT /media/:id
+  // Appelle media-service pour créer une série (en passant le token)
+  async createSerie(authHeader: string, payload: any) {
+    const res$ = this.httpService.post(
+      'http://media-service:3003/media/series',
+      payload,
+      {
+        headers: { Authorization: authHeader },
+      },
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+   // Appelle media-service pour créer une série (en passant le token)
+  async createVideoGame(authHeader: string, payload: any) {
+    const res$ = this.httpService.post(
+      'http://media-service:3003/media/videogames',
+      payload,
+      {
+        headers: { Authorization: authHeader },
+      },
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  // PATCH /media/:id
   async updateMedia(id: string, payload: any, authHeader: string) {
-    const res$ = this.httpService.put(
+    const res$ = this.httpService.patch(
       `http://media-service:3003/media/${id}`,
       payload,
       {

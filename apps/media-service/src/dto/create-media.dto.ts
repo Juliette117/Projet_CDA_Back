@@ -1,4 +1,5 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsDateString,
   IsIn,
@@ -6,9 +7,14 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  ValidateNested,
 } from 'class-validator';
 
 export class CreateMediaDto {
+  @IsOptional()
+  @IsString()
+  id?: string;
+
   @IsString()
   @IsNotEmpty()
   title!: string;
@@ -24,6 +30,7 @@ export class CreateMediaDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
+  @ArrayNotEmpty()
   actors?: string[];
 
   @IsOptional()
@@ -43,8 +50,12 @@ export class CreateMediaDto {
   trailerUrl?: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsString()
   releaseDate?: Date;
+
+  @IsOptional()
+  @IsNumber()
+  duration?: number;
 
   @IsOptional()
   @IsArray()
@@ -54,5 +65,5 @@ export class CreateMediaDto {
   @IsString()
   @IsNotEmpty()
   @IsIn(['movie', 'serie', 'videogame'])
-  type!: 'movie' | 'serie' | 'videogame';
+  type!: string;
 }
