@@ -11,6 +11,7 @@ import {
   ConflictException,
   HttpException,
   HttpStatus,
+  Patch,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from '@app/shared/dto/create-user.dto';
@@ -80,8 +81,8 @@ export class UserController {
     return user;
   }
 
-  // PUT /users/:id
-  @Put(':id')
+  // PATCH /users/:id
+  @Patch(':id')
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(id, updateUserDto);
   }

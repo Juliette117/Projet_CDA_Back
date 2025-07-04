@@ -20,7 +20,7 @@ export class Music {
   artist!: string;
 
   @Column()
-  duration!: number;
+  duration?: number;
 
   @ManyToMany(() => Playlist, playlist => playlist.musics)
   playlists!: Playlist[];

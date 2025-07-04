@@ -1,6 +1,12 @@
-export abstract class Media {
-  id?: string;
+export enum MediaType {
+  MOVIE = 'movie',
+  SERIE = 'serie',
+  VIDEOGAME = 'videogame',
+}
 
+export abstract class Media {
+  
+  id?: string;
   title!: string;
   description!: string;
   director?: string;
@@ -13,6 +19,7 @@ export abstract class Media {
   releaseDate?: Date;
   genre?: string[];
   createdAt!: Date;
-  type!: 'movie' | 'serie' | 'videogame';
+  duration?: number;
+  type!: MediaType;
   // playlistId?: string;
 }

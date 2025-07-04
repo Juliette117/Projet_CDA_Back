@@ -1,21 +1,31 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Inject, Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import neo4j, { Driver} from 'neo4j-driver';
 
 @Injectable()
 export class Neo4jService implements OnModuleInit, OnModuleDestroy {
-  constructor() {}
+  constructor(@Inject('NEO4J_CONFIG') private config: any) {}
 
   private driver!: Driver;
 
+  
+
   onModuleInit() {
     this.driver = neo4j.driver(
-      process.env.NEO4J_URI || 'bolt://neo4j:7687',
-      neo4j.auth.basic(
-        process.env.NEO4J_USERNAME || 'neo4j',
-        process.env.NEO4J_PASSWORD || 'wpl_pass',
-      ),
+      `${this.config.scheme}://${this.config.host}:${this.config.port}`,
+    neo4j.auth.basic(this.config.username, this.config.password),
+    // { encrypted: 'ENCRYPTION_OFF' } // pour Neo4j Community Edition
+  
+      // process.env.NEO4J_URI || 'bolt://neo4j:7687',
+      // neo4j.auth.basic(
+      //   process.env.NEO4J_USERNAME || 'neo4j',
+      //   process.env.NEO4J_PASSWORD || 'wpl_pass',
+      // ),
     );
   }
+
+  getDriver(): Driver {
+  return this.driver;
+}
 
   async read(query: string, params: any = {}) {
     const session = this.driver.session();
@@ -41,7 +51,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Récupérer tous les médias
-  async getAllMedias(): Promise<any[]> {
+  async getAllMedia(): Promise<any[]> {
     const result = await this.read(`
       MATCH (m:Media) RETURN m
     `);
@@ -49,7 +59,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Créer une relation entre médias
-  async createMediaRelation(fromId: number, toId: number, relation: string) {
+  async createMediaRelation(fromId: string, toId: string, relation: string) {
     const result = await this.write(
       `
     MATCH (m:Media {id: $fromId}), (mr:Media {id: $toId})
@@ -67,7 +77,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Récupère les médias liés à un média donné via une relation donnée
-  async getRelatedMedias(mediaId: number, relation: string): Promise<any[]> {
+  async getRelatedMedia(mediaId: string, relation: string): Promise<any[]> {
     const result = await this.read(
       `
     MATCH (m:Media {id: $mediaId})-[:${relation}]->(related:Media)
@@ -80,7 +90,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Récupère les playlists liées à un média
-  async getPlaylistsByMediaId(mediaId: number): Promise<any[]> {
+  async getPlaylistsByMediaId(mediaId: string): Promise<any[]> {
     const result = await this.read(
       `
       MATCH (m:Media {id: $mediaId})-[:HAS_PLAYLIST]->(p:Playlist)
@@ -92,7 +102,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Créer une relation Media -> Playlist
-  async relateMediaToPlaylist(mediaId: number, playlistId: number) {
+  async relateMediaToPlaylist(mediaId: string, playlistId: string) {
     const result = await this.write(
       `
       MATCH (m:Media {id: $mediaId}), (p:Playlist {id: $playlistId})
@@ -108,7 +118,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Créer une relation Media -> Music
-  async relateMediaToMusic(mediaId: number, musicId: number) {
+  async relateMediaToMusic(mediaId: string, musicId: string) {
     const result = await this.write(
       `
       MATCH (m:Media {id: $mediaId}), (mu:Music {id: $musicId})
@@ -124,7 +134,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Supprimer la relation Media → Playlist
-  async removePlaylistRelation(mediaId: number, playlistId: number) {
+  async removePlaylistRelation(mediaId: string, playlistId: string) {
     await this.write(
       `
     MATCH (m:Media {id: $mediaId})-[r:HAS_PLAYLIST]->(p:Playlist {id: $playlistId})
@@ -136,7 +146,7 @@ export class Neo4jService implements OnModuleInit, OnModuleDestroy {
   }
 
   // Supprimer la relation Media → Music
-  async removeMusicRelation(mediaId: number, musicId: number) {
+  async removeMusicRelation(mediaId: string, musicId: string) {
     await this.write(
       `
     MATCH (m:Media {id: $mediaId})-[r:INCLUDES]->(mu:Music {id: $musicId})

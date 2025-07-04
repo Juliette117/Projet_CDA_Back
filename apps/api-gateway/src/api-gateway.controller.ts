@@ -8,7 +8,8 @@ import {
   Put,
   Req,
   UseGuards,
-  Headers
+  Headers,
+  Patch
 } from '@nestjs/common';
 import { ApiGatewayService } from './api-gateway.service';
 import { Request } from 'express';
@@ -68,10 +69,10 @@ export class ApiGatewayController {
 
   @Post('media/movies')
   createMovie(@Body() body: any, @Headers('authorization') auth: string) {
-    return this.gatewayService.createMedia(auth, { ...body, type: 'movie' });
+    return this.gatewayService.createMovie(auth, { ...body, type: 'movie' });
   }
 
-  @Put('media/movies/:id')
+  @Patch('media/movies/:id')
   updateMovie(
     @Param('id') id: string,
     @Body() body: any,
@@ -92,16 +93,16 @@ export class ApiGatewayController {
   }
 
   @Get('media/series/:id')
-  getSeriesById(@Param('id') id: string) {
+  getSerieById(@Param('id') id: string) {
     return this.gatewayService.getMediaById(id);
   }
 
   @Post('media/series')
-  createSeries(@Body() body: any, @Headers('authorization') auth: string) {
-    return this.gatewayService.createMedia(auth, { ...body, type: 'serie' });
+  createSerie(@Body() body: any, @Headers('authorization') auth: string) {
+    return this.gatewayService.createSerie(auth, { ...body, type: 'serie' });
   }
 
-  @Put('media/series/:id')
+  @Patch('media/series/:id')
   updateSeries(
     @Param('id') id: string,
     @Body() body: any,
@@ -131,10 +132,10 @@ export class ApiGatewayController {
 
   @Post('media/videogames')
   createVideogame(@Body() body: any, @Headers('authorization') auth: string) {
-    return this.gatewayService.createMedia(auth, { ...body, type: 'videogame' });
+    return this.gatewayService.createVideoGame(auth, { ...body, type: 'videogame' });
   }
 
-  @Put('media/videogames/:id')
+  @Patch('media/videogames/:id')
   updateVideogame(
     @Param('id') id: string,
     @Body() body: any,

@@ -9,7 +9,7 @@ import { User } from './entities/user.entity';
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
-      type: 'postgres',
+      type: 'postgres', // ou 'localhost' si hors docker
       host: process.env.DB_HOST || 'postgres',
       port: Number(process.env.DB_PORT || 5432),
       username: process.env.DB_USER || 'postgres',

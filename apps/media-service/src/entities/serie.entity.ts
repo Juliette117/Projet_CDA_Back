@@ -1,9 +1,8 @@
-// src/media/entities/serie.entity.ts
-import { Media } from './media.entity';
+import { Media, MediaType } from './media.entity';
 
 export class Serie extends Media {
   numberOfSeasons!: number;
   numberOfEpisodes!: number;
   seasonPlaylistIds?: string[];
-  override type: 'serie' = 'serie';
+  override type = MediaType.SERIE;
 }
