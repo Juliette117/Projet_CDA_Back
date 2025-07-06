@@ -1,89 +1,230 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable } from '@nestjs/common';
+import { Neo4jService } from 'apps/neo4j/neo4j.service';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 import { UpdatePlaylistDto } from './dto/update-playlist.dto';
-import { Playlist } from './entities/playlist.entity';
+import { randomUUID } from 'crypto';
+import { AddMusicDto } from './dto/add-music.dto';
+import { UpdateMusicDto } from './dto/update-music-dto';
+
+function capitalize(str: string) {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
 
 @Injectable()
 export class PlaylistService {
-  constructor(
-    @InjectRepository(Playlist)
-    private readonly playlistRepository: Repository<Playlist>,
-  ) {}
+  constructor(private readonly neo4jService: Neo4jService) {}
 
-  /**
-   * Crée une nouvelle playlist pour un média.
-   * Si le média est une série, une playlist par saison est autorisée.
-   * Si ce n'est pas une série, une seule playlist est autorisée.
-   */
-  async create(createDto: CreatePlaylistDto): Promise<Playlist> {
-    const existing = await this.findByMedia(createDto.mediaId, createDto.seasonNumber);
+  async create(dto: CreatePlaylistDto) {
+    const playlistId = randomUUID();
 
-    if (existing) {
-      throw new ConflictException('Une playlist existe déjà pour ce média.');
+    let seasonClause = '';
+    let matchClause = `MATCH (m:${capitalize(dto.mediaType)}) WHERE m.id = $mediaId`;
+
+    if (dto.mediaType === 'serie') {
+      if (dto.seasonNumber === undefined) {
+        throw new Error('Season number is required for series');
+      }
+
+      seasonClause = `
+      MATCH (m:${capitalize(dto.mediaType)})-[:HAS_SEASON]->(s:Season {number: $season})
+      WHERE m.id = $mediaId
+      WITH s AS target
+    `;
+
+      // Vérifier qu’il n’existe pas déjà de playlist pour cette saison
+      const checkQuery = `
+      ${seasonClause}
+      MATCH (target)-[:HAS_PLAYLIST]->(existing:Playlist)
+      RETURN existing LIMIT 1
+    `;
+
+      const existing = await this.neo4jService.read(checkQuery, {
+        mediaId: dto.mediaId,
+        season: dto.seasonNumber,
+      });
+
+      if (existing.records.length > 0) {
+        throw new Error('Playlist already exists for this season');
+      }
+    } else {
+      // Vérifier qu’il n’existe pas déjà une playlist pour ce média
+      const checkQuery = `
+      MATCH (m:${capitalize(dto.mediaType)} {id: $mediaId})-[:HAS_PLAYLIST]->(p:Playlist)
+      RETURN p LIMIT 1
+    `;
+
+      const existing = await this.neo4jService.read(checkQuery, {
+        mediaId: dto.mediaId,
+      });
+
+      if (existing.records.length > 0) {
+        throw new Error('Playlist already exists for this media');
+      }
     }
 
-    const playlist = this.playlistRepository.create({
-      ...createDto,
-      createdAt: new Date(),
-    });
+    // Création de la playlist
+    const createQuery =
+      dto.mediaType === 'serie'
+        ? `
+    MATCH (m:${capitalize(dto.mediaType)})-[:HAS_SEASON]->(s:Season {number: $season})
+    WHERE m.id = $mediaId
+    CREATE (p:Playlist {id: $id, name: $name})
+    CREATE (s)-[:HAS_PLAYLIST]->(p)
+    WITH p
+    UNWIND $musicIds AS musicId
+    MATCH (mu:Music {id: musicId})
+    CREATE (p)-[:CONTAINS]->(mu)
+    RETURN p
+  `
+        : `
+    MATCH (m:${capitalize(dto.mediaType)} {id: $mediaId})
+    CREATE (p:Playlist {id: $id, name: $name})
+    CREATE (m)-[:HAS_PLAYLIST]->(p)
+    WITH p
+    UNWIND $musicIds AS musicId
+    MATCH (mu:Music {id: musicId})
+    CREATE (p)-[:CONTAINS]->(mu)
+    RETURN p
+  `;
 
-    return await this.playlistRepository.save(playlist);
+    const params = {
+      id: playlistId,
+      name: dto.name,
+      mediaId: dto.mediaId,
+      musicIds: dto.musicIds,
+      season: dto.seasonNumber,
+    };
+
+    await this.neo4jService.write(createQuery, params);
+    return { message: 'Playlist created', id: playlistId };
   }
 
-  /**
-   * Récupère toutes les playlists.
-   */
-  async findAll(): Promise<Playlist[]> {
-    return await this.playlistRepository.find({ relations: ['musics'] });
+
+  async findAll() {
+    const query = `
+      MATCH (p:Playlist)
+      OPTIONAL MATCH (p)-[:CONTAINS]->(m:Music)
+      WITH p, collect(m {.*}) AS musics
+      RETURN p {.*, musics: musics } AS playlist
+    `;
+    const result = await this.neo4jService.read(query);
+    return result.records.map((r) => r.get('playlist'));
   }
 
-  /**
-   * Récupère une playlist par ID.
-   */
-  async findOne(id: string): Promise<Playlist> {
-    const playlist = await this.playlistRepository.findOne({
-      where: { id },
-      relations: ['musics'],
-    });
+  async findOne(id: string) {
+    const query = `
+      MATCH (p:Playlist {id: $id})
+      OPTIONAL MATCH (p)-[:CONTAINS]->(m:Music)
+      WITH p, collect(m {.*}) AS musics
+      RETURN p {.*, musics: musics } AS playlist
+    `;
+    const result = await this.neo4jService.read(query, { id });
+    return result.records[0]?.get('playlist') ?? null;
+  }
 
-    if (!playlist) {
-      throw new NotFoundException(`Playlist ${id} introuvable`);
+  async update(id: string, dto: UpdatePlaylistDto) {
+    const updates = [];
+    const updateParams: any = { id };
+
+    if (dto.name) {
+      updates.push(`p.name = $name`);
+      updateParams.name = dto.name;
     }
 
-    return playlist;
-  }
+    const updateQuery = `
+      MATCH (p:Playlist {id: $id})
+      ${updates.length ? `SET ${updates.join(', ')}` : ''}
+      RETURN p
+    `;
 
-  /**
-   * Récupère une playlist par mediaId.
-   */
-  async findByMedia(mediaId: string, seasonNumber?: number): Promise<Playlist | null> {
-    const where: any = { mediaId };
+    await this.neo4jService.write(updateQuery, updateParams);
 
-    if (seasonNumber !== undefined) {
-      where.seasonNumber = seasonNumber;
+    if (dto.musicIds) {
+      const deleteRel = `
+        MATCH (p:Playlist {id: $id})-[r:CONTAINS]->()
+        DELETE r
+      `;
+      await this.neo4jService.write(deleteRel, { id });
+
+      const addRel = `
+        UNWIND $musicIds AS musicId
+        MATCH (p:Playlist {id: $id})
+        MATCH (m:Music {id: musicId})
+        CREATE (p)-[:CONTAINS]->(m)
+      `;
+      await this.neo4jService.write(addRel, { id, musicIds: dto.musicIds });
     }
 
-    return await this.playlistRepository.findOne({ where });
+    return { message: 'Playlist updated' };
   }
 
-  /**
-   * Met à jour une playlist.
-   */
-  async update(id: string, updateDto: UpdatePlaylistDto): Promise<Playlist> {
-    const playlist = await this.findOne(id);
-    Object.assign(playlist, updateDto);
-    return await this.playlistRepository.save(playlist);
+  async remove(id: string) {
+    const query = `
+      MATCH (p:Playlist {id: $id})
+      DETACH DELETE p
+    `;
+    await this.neo4jService.write(query, { id });
+    return { message: 'Playlist deleted' };
   }
 
-  /**
-   * Supprime une playlist.
-   */
-  async remove(id: string): Promise<void> {
-    const result = await this.playlistRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Playlist ${id} introuvable pour suppression`);
+  // Musique
+  async createMusic(dto: AddMusicDto) {
+    const id = randomUUID();
+    const query = `
+    CREATE (m:Music {
+      id: $id,
+      name: $name,
+      artist: $artist,
+      duration: $duration,
+      createdAt: datetime()
+    })
+    RETURN m
+  `;
+    await this.neo4jService.write(query, { id, ...dto });
+    return { message: 'Music created', id };
+  }
+
+  async findAllMusics() {
+    const query = `MATCH (m:Music) RETURN m ORDER BY m.createdAt DESC`;
+    const result = await this.neo4jService.read(query);
+    return result.records.map((r) => r.get('m').properties);
+  }
+
+  async findOneMusic(id: string) {
+    const query = `MATCH (m:Music {id: $id}) RETURN m`;
+    const result = await this.neo4jService.read(query, { id });
+    return result.records[0]?.get('m').properties ?? null;
+  }
+
+  async updateMusic(id: string, dto: UpdateMusicDto) {
+    const updates = [];
+    const params: any = { id };
+
+    if (dto.name) {
+      updates.push('m.name = $name');
+      params.name = dto.name;
     }
+    if (dto.artist) {
+      updates.push('m.artist = $artist');
+      params.artist = dto.artist;
+    }
+    if (dto.duration !== undefined) {
+      updates.push('m.duration = $duration');
+      params.duration = dto.duration;
+    }
+
+    const query = `
+    MATCH (m:Music {id: $id})
+    ${updates.length ? `SET ${updates.join(', ')}` : ''}
+    RETURN m
+  `;
+    await this.neo4jService.write(query, params);
+    return { message: 'Music updated' };
+  }
+
+  async removeMusic(id: string) {
+    const query = `MATCH (m:Music {id: $id}) DETACH DELETE m`;
+    await this.neo4jService.write(query, { id });
+    return { message: 'Music deleted' };
   }
 }

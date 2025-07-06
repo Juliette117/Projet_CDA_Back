@@ -17,4 +17,11 @@ export class User {
 
   @Column({ type: 'enum', enum: Role, default: Role.USER })
   role?: Role;
+
+  @Column({ type: 'text', array: true, default: [] })
+  likedMediaIds?: string[];
+
+  @Column({ type: 'text', array: true, default: [] })
+  likedPlaylistIds?: string[];
+  
 }

@@ -21,5 +21,5 @@ export abstract class Media {
   createdAt!: Date;
   duration?: number;
   type!: MediaType;
-  // playlistId?: string;
+  playlistIds?: string;
 }

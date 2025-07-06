@@ -1,18 +1,21 @@
-import { IsString, IsOptional, IsUUID, IsArray, IsInt, Min } from 'class-validator';
+import { IsString, IsOptional, IsUUID, IsArray, IsInt, IsIn, IsNumber } from 'class-validator';
 
 export class CreatePlaylistDto {
-  @IsString()
+@IsString()
   name!: string;
 
   @IsUUID()
   mediaId!: string;
 
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  seasonNumber?: number;
+  @IsIn(['movie', 'serie', 'videogame'])
+  mediaType!: 'movie' | 'serie' | 'videogame';
 
   @IsArray()
   @IsUUID('all', { each: true })
   musicIds!: string[];
+
+  @IsOptional()
+  @IsNumber()
+  seasonNumber?: number;
 }
+

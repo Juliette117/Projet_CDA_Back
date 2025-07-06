@@ -31,7 +31,7 @@ export class Neo4jController {
   }
 
   // Récupérer les playlists liées à un média
-  @Get('media/:id/playlists')
+  @Get('media/:id/playlist')
   async getMediaPlaylists(@Param('id') id: string) {
     return this.neo4jService.getPlaylistsByMediaId(id);
   }
@@ -54,7 +54,7 @@ export class Neo4jController {
     return this.neo4jService.relateMediaToMusic(mediaId, body.musicId);
   }
 
-  @Delete('media/:mediaId/playlists/:playlistId')
+  @Delete('media/:mediaId/playlist/:playlistId')
   removePlaylistRelation(
     @Param('mediaId') mediaId: string,
     @Param('playlistId') playlistId: string,
