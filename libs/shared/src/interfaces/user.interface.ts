@@ -5,5 +5,7 @@ export interface User {
   email: string;
   password: string;
   username: string;
+  likedMediaIds: string[];
+  likedPlaylistIds: string[];
   role: Role;
 }

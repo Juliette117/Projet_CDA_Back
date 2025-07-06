@@ -93,7 +93,7 @@ export class ApiGatewayService {
     return data;
   }
 
-   // Appelle media-service pour créer une série (en passant le token)
+  // Appelle media-service pour créer une série (en passant le token)
   async createVideoGame(authHeader: string, payload: any) {
     const res$ = this.httpService.post(
       'http://media-service:3003/media/videogames',
@@ -124,6 +124,92 @@ export class ApiGatewayService {
     const res$ = this.httpService.delete(
       `http://media-service:3003/media/${id}`,
       {
+        headers: { Authorization: authHeader },
+      },
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async getAllPlaylists() {
+    const res$ = this.httpService.get(`http://playlist-service:3004/playlist`);
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async getPlaylistById(id: string) {
+    const res$ = this.httpService.get(
+      `http://playlist-service:3004/playlist/${id}`,
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async createPlaylist(payload: any) {
+    const res$ = this.httpService.post(
+      `http://playlist-service:3004/playlist`,
+      payload,
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async updatePlaylist(id: string, payload: any) {
+    const res$ = this.httpService.put(
+      `http://playlist-service:3004/playlist/${id}`,
+      payload,
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async deletePlaylist(id: string) {
+    const res$ = this.httpService.delete(
+      `http://playlist-service:3004/playlist/${id}`,
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  // MUSICS
+  async createMusic(payload: any) {
+    const res$ = this.httpService.post(
+      'http://playlist-service:3004/playlist/music',
+      payload,
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async getAllMusics() {
+    const res$ = this.httpService.get(
+      'http://playlist-service:3004/playlist/musics',
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async getMusicById(id: string) {
+    const res$ = this.httpService.get(
+      `http://playlist-service:3004/playlist/musics/${id}`,
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async updateMusic(id: string, payload: any) {
+    const res$ = this.httpService.patch(
+      `http://playlist-service:3004/playlist/musics/${id}`,
+      payload,
+    );
+    const { data } = await firstValueFrom(res$);
+    return data;
+  }
+
+  async deleteMusic(id: string, authHeader: string) {
+    const res$ = this.httpService.delete(
+      `http://playlist-service:3004/playlist/musics/${id}`,
+       {
         headers: { Authorization: authHeader },
       },
     );

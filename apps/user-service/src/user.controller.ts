@@ -58,8 +58,8 @@ export class UserController {
     if (!currentUser) {
       throw new NotFoundException('Utilisateur introuvable');
     }
-    const { id, email, username, role } = currentUser;
-    return { id, email, username, role };
+    const { id, email, username, role, likedMediaIds, likedPlaylistIds } = currentUser;
+    return { id, email, username, role, likedMediaIds, likedPlaylistIds };
   }
 
   @Get(':id')

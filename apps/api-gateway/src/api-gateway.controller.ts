@@ -9,7 +9,7 @@ import {
   Req,
   UseGuards,
   Headers,
-  Patch
+  Patch,
 } from '@nestjs/common';
 import { ApiGatewayService } from './api-gateway.service';
 import { Request } from 'express';
@@ -132,7 +132,10 @@ export class ApiGatewayController {
 
   @Post('media/videogames')
   createVideogame(@Body() body: any, @Headers('authorization') auth: string) {
-    return this.gatewayService.createVideoGame(auth, { ...body, type: 'videogame' });
+    return this.gatewayService.createVideoGame(auth, {
+      ...body,
+      type: 'videogame',
+    });
   }
 
   @Patch('media/videogames/:id')
@@ -150,5 +153,60 @@ export class ApiGatewayController {
     @Headers('authorization') auth: string,
   ) {
     return this.gatewayService.deleteMedia(id, auth);
+  }
+
+  // ========== PLAYLISTS ==========
+  @Get('playlist')
+  getAllPlaylist() {
+    return this.gatewayService.getAllPlaylists();
+  }
+
+  @Get('playlist/:id')
+  getPLaylistById(@Param('id') id: string) {
+    return this.gatewayService.getPlaylistById(id);
+  }
+
+  @Post('playlist')
+  createPlaylist(@Body() playlistData: any) {
+    return this.gatewayService.createPlaylist(playlistData);
+  }
+
+  @Put(':id')
+  updatePlaylist(@Param('id') id: string, @Body() playlistData: any) {
+    return this.gatewayService.updatePlaylist(id, playlistData);
+  }
+
+  @Delete('playlist/:id')
+  deletePlaylist(
+    @Param('id') id: string,
+    @Headers('authorization') auth: string,
+  ) {
+    return this.gatewayService.deleteMedia(id, auth);
+  }
+
+  // ========== MUSICS ==========
+  @Post('musics')
+  createMusic(@Body() dto: any) {
+    return this.gatewayService.createMusic(dto);
+  }
+
+  @Get('musics')
+  getAllMusics() {
+    return this.gatewayService.getAllMusics();
+  }
+
+  @Get('musics/:id')
+  getMusicById(@Param('id') id: string) {
+    return this.gatewayService.getMusicById(id);
+  }
+
+  @Patch('musics/:id')
+  updateMusic(@Param('id') id: string, @Body() dto: any) {
+    return this.gatewayService.updateMusic(id, dto);
+  }
+
+  @Delete('musics/:id')
+  deleteMusic(@Param('id') id: string, @Headers('authorization') auth: string) {
+    return this.gatewayService.deleteMusic(id, auth);
   }
 }

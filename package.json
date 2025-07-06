@@ -7,15 +7,17 @@
     "libs/*"
   ],
   "scripts": {
-    "build": "npm run build:api-gateway && npm run build:auth-service && npm run build:user-service && npm run build:media-service",
+    "build": "npm run build:api-gateway && npm run build:auth-service && npm run build:user-service && npm run build:media-service && npm run build:media-service && build:playlist-service",
     "build:api-gateway": "nest build api-gateway",
     "build:auth-service": "nest build auth-service",
     "build:user-service": "nest build user-service",
     "build:media-service": "nest build media-service",
+    "build:playlist-service": "nest build playlist-service",
     "start:dev:api-gateway": "nest start api-gateway --watch",
     "start:dev:auth-service": "nest start auth-service --watch",
     "start:dev:user-service": "nest start user-service --watch",
     "start:dev:media-service": "nest start media-service --watch",
+    "start:dev:playlist-service": "nest start playlist-service --watch",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "lint": "eslint \"{apps,libs}/**/*.ts\" --fix",
     "test": "jest",

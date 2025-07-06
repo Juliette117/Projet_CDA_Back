@@ -3,7 +3,6 @@ import { Neo4jService } from 'apps/neo4j/neo4j.service';
 import { CreateMediaDto } from './dto/create-media.dto';
 import { UpdateMediaDto } from './dto/update-media.dto';
 import { randomUUID } from 'crypto';
-import { parse } from 'date-fns';
 import neo4j from 'neo4j-driver';
 
 function capitalize(str: string) {
@@ -42,8 +41,8 @@ export class MediaService {
         for (const actor of validActors) {
           await tx.run(
             `MERGE (a:Actor {name: $name})
-       WITH a MATCH (m:Media {id: $mediaId})
-       MERGE (a)-[:ACTED_IN]->(m)`,
+            WITH a MATCH (m:Media {id: $mediaId})
+            MERGE (a)-[:ACTED_IN]->(m)`,
             { name: actor.trim(), mediaId: id },
           );
         }
